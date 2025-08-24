@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>كتابة التعبير</title>
+    <!-- Chosen Palette: Vibrant Sunrise (Warm Orange, Gold, and Sky Blue) -->
+    <!-- Application Structure Plan: The application is structured into five main thematic sections for a clear learning path: 1) A welcoming hero section. 2) An "أساسيات الكتابة" (Writing Basics) section with interactive cards and a dynamic quiz with comprehensive sound feedback. 3) An "إتقان المقالة" (Mastering the Essay) section featuring an interactive diagram and new, detailed example paragraphs for each essay part (Intro, Body, Conclusion). 4) A new "كلمات وعبارات مفتاحية" (Key Phrases) section that provides a structured, scrollable list of transition words. 5) The "نصائح إضافية" (Additional Tips) section with a dynamic carousel. This structure was chosen to guide the user from foundational concepts to practical application, providing new tools (phrases) and ongoing support (tips) in a logical, step-by-step manner, enhancing usability and engagement. -->
+    <!-- Visualization & Content Choices: 
+        - Punctuation Rules: Report Info -> Goal: Inform -> Presentation: Clickable Cards -> Interaction: Flip/reveal effect with a sound on click -> Justification: Breaks down dense information into manageable, interactive chunks with auditory feedback. Method: HTML/CSS/JS.
+        - Punctuation Quiz: Report Info -> Goal: Test Knowledge -> Presentation: Multiple-choice quiz with sound effects -> Interaction: Instant feedback with unique auditory cues (correct/incorrect) on selection -> Justification: Actively engages the user and reinforces learning from the cards through multi-sensory feedback. Method: JS.
+        - Paragraph Structure: Report Info -> Goal: Organize/Explain -> Presentation: Interactive Diagram with tooltip on hover -> Interaction: Clicking on each part of the diagram highlights it and displays a detailed explanation with a sound effect -> Justification: Visually represents the concept of structure, making it easier to understand than plain text. Method: HTML/CSS/JS.
+        - Essay Components (Intro/Body/Conclusion): Report Info -> Goal: Inform -> Presentation: Tabbed interface with full example paragraphs -> Interaction: Clicking reveals detailed content and examples for each section with a sound effect -> Justification: Organizes complex information and provides concrete, practical examples for active learning. Method: HTML/CSS/JS.
+        - Key Phrases: Report Info -> Goal: Organize/Tool -> Presentation: A structured list within a scrollable card -> Interaction: User can browse the list -> Justification: Provides a practical, searchable resource that is easily scannable and directly applicable to writing tasks. Method: HTML/CSS/JS.
+        - Writing Tips: Report Info -> Goal: Inform -> Presentation: Dynamic card carousel/slider -> Interaction: User can cycle through tips using navigation buttons with a sound effect -> Justification: Presents advice in a visually engaging and non-overwhelming format, encouraging continued exploration. Method: HTML/CSS/JS.
+        - CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background-color: #FFFBF5;
+        }
+        .text-gradient {
+            background-image: linear-gradient(to right, #F97316, #F59E0B);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        .card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+        }
+        .tab-btn.active {
+            background-color: #F97316;
+            color: white;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        }
+        .diagram-part {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .diagram-part.active {
+            background-color: #FEF3C7;
+            border-color: #F59E0B;
+            transform: scale(1.05);
+        }
+        .quiz-option {
+            transition: background-color 0.2s;
+        }
+        .quiz-option.correct {
+            background-color: #D1FAE5;
+            border-color: #10B981;
+        }
+        .quiz-option.incorrect {
+            background-color: #FEE2E2;
+            border-color: #EF4444;
+        }
+        .carousel-item {
+            transition: transform 0.5s ease-in-out, opacity 0.5s ease-in-out;
+            transform: translateX(100%);
+            opacity: 0;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+        }
+        .carousel-item.active {
+            transform: translateX(0);
+            opacity: 1;
+            position: relative;
+        }
+        .carousel-item.prev {
+            transform: translateX(-100%);
+        }
+        .phrases-list {
+            max-height: 400px;
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: #F97316 #FFFBF5;
+        }
+        .social-icon {
+            transition: transform 0.3s ease, background-color 0.3s ease;
+        }
+        .social-icon:hover {
+            transform: scale(1.1);
+        }
+        .nav-link.active {
+            color: #F97316;
+            font-weight: 700;
+        }
+        .interactive-text {
+            position: relative;
+            cursor: pointer;
+            border-bottom: 2px dotted;
+        }
+        .tooltip {
+            visibility: hidden;
+            background-color: #1F2937;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 8px 12px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+            width: max-content;
+        }
+        .interactive-text:hover .tooltip {
+            visibility: visible;
+            opacity: 1;
+        }
+        .draggable {
+            cursor: grab;
+            transition: background-color 0.2s;
+        }
+        .draggable:active {
+            cursor: grabbing;
+        }
+        .dropzone {
+            transition: background-color 0.2s, border-color 0.2s;
+        }
+        .dropzone.over {
+            background-color: #FEF9C3;
+            border-color: #F59E0B;
+        }
+        .dropzone.correct {
+            background-color: #D1FAE5;
+            border-color: #10B981;
+        }
+        .dropzone.incorrect {
+            background-color: #FEE2E2;
+            border-color: #EF4444;
+        }
+    </style>
+</head>
+<body class="bg-orange-50 text-gray-800">
+
+    <nav id="main-nav" class="bg-white/80 backdrop-blur-md sticky top-0 z-50 shadow-sm transition-all duration-300">
+        <div class="container mx-auto px-4 flex justify-between items-center py-3">
+            <h2 class="text-2xl font-bold text-gradient">فن التعبير</h2>
+            <div class="hidden md:flex space-x-8 space-x-reverse">
+                <a href="#basics" class="nav-link text-gray-600 hover:text-orange-500 transition-colors">الأساسيات</a>
+                <a href="#essay" class="nav-link text-gray-600 hover:text-orange-500 transition-colors">إتقان المقالة</a>
+                <a href="#phrases" class="nav-link text-gray-600 hover:text-orange-500 transition-colors">عبارات مفتاحية</a>
+                <a href="#tips" class="nav-link text-gray-600 hover:text-orange-500 transition-colors">نصائح</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container mx-auto px-4 py-8 md:py-12">
+
+        <!-- Hero Section -->
+        <header class="text-center mb-16 pt-10">
+            <h1 class="text-4xl md:text-6xl font-extrabold mb-4">الدليل التفاعلي لإتقان <span class="text-gradient">فن التعبير</span></h1>
+            <p class="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto">أهلاً بك في دليلك الشامل لتعلم أساسيات الكتابة التعبيرية واحتراف كتابة المقالة للمرحلة الثانوية بأسلوب تفاعلي ومبتكر.</p>
+        </header>
+
+        <!-- Section 1: Writing Basics -->
+        <section id="basics" class="mb-16 pt-16 -mt-16">
+            <h2 class="text-3xl md:text-4xl font-bold text-center mb-10">أساسيات الكتابة: الأدوات التي تحتاجها</h2>
+            <div class="bg-white p-8 rounded-2xl shadow-lg border border-gray-100">
+                <h3 class="text-2xl font-bold mb-6 text-orange-700">علامات الترقيم: روح النص</h3>
+                <p class="text-gray-600 mb-8">علامات الترقيم هي إشاراتك لتوجيه القارئ. انقر على كل بطاقة لاكتشاف استخدامها الصحيح مع مثال توضيحي.</p>
+                
+                <div id="punctuation-cards" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    
+                </div>
+
+                <!-- Interactive Quiz -->
+                <div id="quiz-container" class="mt-12 p-6 bg-orange-50 rounded-xl border border-orange-200">
+                    <h4 class="text-xl font-bold mb-4 text-orange-800">اختبر معلوماتك: أين تضع العلامة الصحيحة؟</h4>
+                    <div id="quiz-content">
+                        
+                    </div>
+                    <div id="quiz-feedback" class="text-center mt-4"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 2: Mastering the Essay -->
+        <section id="essay" class="mb-16 pt-16 -mt-16">
+            <h2 class="text-3xl md:text-4xl font-bold text-center mb-10">إتقان المقالة: من الفكرة إلى الخاتمة</h2>
+            <div class="bg-white p-8 rounded-2xl shadow-lg border border-gray-100">
+                
+                <!-- Paragraph Structure Diagram -->
+                <div class="mb-12">
+                    <h3 class="text-2xl font-bold mb-2 text-orange-700">الشكل الفني: كيف تبني فقرة متماسكة؟</h3>
+                    <p class="text-gray-600 mb-6">كل فقرة قوية تتبع بناءً منطقياً. اضغط على كل جزء من المخطط التالي لفهم دوره.</p>
+                    <div class="flex flex-col md:flex-row gap-4 text-center">
+                        <div id="part-topic" class="diagram-part flex-1 p-4 border-2 border-gray-200 rounded-lg active relative">
+                            <h4 class="font-bold text-lg">1. الجملة المفتاحية</h4>
+                        </div>
+                        <div id="part-details" class="diagram-part flex-1 p-4 border-2 border-gray-200 rounded-lg relative">
+                            <h4 class="font-bold text-lg">2. التفاصيل والدعم</h4>
+                        </div>
+                        <div id="part-concluding" class="diagram-part flex-1 p-4 border-2 border-gray-200 rounded-lg relative">
+                            <h4 class="font-bold text-lg">3. الجملة الختامية</h4>
+                        </div>
+                    </div>
+                    <div id="diagram-explanation" class="mt-6 p-6 bg-orange-50 rounded-xl text-lg text-orange-900 min-h-[100px]">
+                        
+                    </div>
+                </div>
+
+                <!-- Essay Components Tabs -->
+                <div class="mb-12">
+                    <h3 class="text-2xl font-bold mb-6 text-orange-700">أجزاء المقالة: دليلك العملي</h3>
+                    <div class="flex justify-center border-b-2 border-gray-200 mb-6">
+                        <button class="tab-btn p-4 font-bold text-lg active" data-tab="intro">المقدمة الجذابة</button>
+                        <button class="tab-btn p-4 font-bold text-lg" data-tab="body">صلب الموضوع</button>
+                        <button class="tab-btn p-4 font-bold text-lg" data-tab="conclusion">الخاتمة القوية</button>
+                    </div>
+                    <div id="tab-content" class="p-4">
+                        
+                    </div>
+                </div>
+                
+                <!-- Interactive Exercise: Arrange the Paragraph -->
+                <div class="mt-12 p-6 bg-orange-50 rounded-xl border border-orange-200">
+                    <h4 class="text-xl font-bold mb-2 text-orange-800">تدريب تفاعلي: بناء الفقرة المثالية</h4>
+                    <p class="text-gray-700 mb-6">قم بسحب وإفلات الجمل التالية في الأماكن المخصصة لترتيبها بالشكل الصحيح (جملة مفتاحية، تفاصيل داعمة، جملة ختامية).</p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
+                        <div id="scrambled-sentences" class="space-y-3">
+                            <!-- Draggable sentences will be injected here -->
+                        </div>
+                        <div id="paragraph-dropzones" class="space-y-3">
+                            <div class="dropzone p-4 border-2 border-dashed border-gray-300 rounded-lg min-h-[60px]" data-order="1"><span class="text-gray-400">ضع الجملة المفتاحية هنا</span></div>
+                            <div class="dropzone p-4 border-2 border-dashed border-gray-300 rounded-lg min-h-[60px]" data-order="2"><span class="text-gray-400">ضع التفاصيل الداعمة هنا</span></div>
+                            <div class="dropzone p-4 border-2 border-dashed border-gray-300 rounded-lg min-h-[60px]" data-order="3"><span class="text-gray-400">ضع التفاصيل الداعمة هنا</span></div>
+                            <div class="dropzone p-4 border-2 border-dashed border-gray-300 rounded-lg min-h-[60px]" data-order="4"><span class="text-gray-400">ضع الجملة الختامية هنا</span></div>
+                        </div>
+                    </div>
+                    <div class="text-center mt-6">
+                        <button id="check-order-btn" class="py-2 px-5 bg-orange-600 text-white font-semibold rounded-lg shadow-md hover:bg-orange-700 transition-colors">تحقق من الترتيب</button>
+                        <button id="reset-order-btn" class="py-2 px-5 bg-gray-500 text-white font-semibold rounded-lg shadow-md hover:bg-gray-600 transition-colors mr-2">إعادة المحاولة</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 3: Key Phrases -->
+        <section id="phrases" class="mb-16 pt-16 -mt-16">
+            <h2 class="text-3xl md:text-4xl font-bold text-center mb-10">كلمات وعبارات مفتاحية للربط</h2>
+            <div class="bg-white p-8 rounded-2xl shadow-lg border border-gray-100">
+                <p class="text-gray-600 mb-6">استخدم هذه العبارات والجمل للانتقال بسلاسة بين أفكارك وجعل كتابتك أكثر تماسكًا.</p>
+                <div id="phrases-accordion" class="space-y-4">
+                </div>
+                
+                <!-- New Interactive Exercise: Transition Words -->
+                <div class="mt-12 p-6 bg-orange-50 rounded-xl border border-orange-200">
+                    <h4 class="text-xl font-bold mb-4 text-orange-800">تدريب تفاعلي: اختر أداة الربط المناسبة</h4>
+                    <div id="transition-quiz-content">
+                        <!-- Transition quiz will be injected here -->
+                    </div>
+                    <div id="transition-quiz-feedback" class="text-center mt-4"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 4: Additional Tips -->
+        <section id="tips" class="mb-16 pt-16 -mt-16">
+            <h2 class="text-3xl md:text-4xl font-bold text-center mb-10">نصائح إضافية لتطوير كتابتك</h2>
+            <div class="bg-white p-8 rounded-2xl shadow-lg border border-gray-100 relative overflow-hidden">
+                <div id="tips-container" class="relative min-h-[150px]">
+                    
+                </div>
+                <div class="flex justify-between absolute inset-y-0 w-full top-1/2 -translate-y-1/2 px-4">
+                    <button id="tips-prev" class="p-2 bg-gray-200 text-gray-700 rounded-full hover:bg-gray-300 transition-colors z-10">
+                        <span class="text-2xl font-bold">‹</span>
+                    </button>
+                    <button id="tips-next" class="p-2 bg-gray-200 text-gray-700 rounded-full hover:bg-gray-300 transition-colors z-10">
+                        <span class="text-2xl font-bold">›</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-gray-900 text-white pt-12 pb-8 border-t-4 border-orange-500">
+        <div class="container mx-auto px-6 text-center">
+            <h3 class="text-xl font-bold mb-2">إعداد</h3>
+            <p class="text-2xl font-semibold text-orange-400 mb-6">الأستاذ لؤي جمال</p>
+            <p class="mb-4 text-gray-300">للتواصل والمزيد من المحتوى التعليمي:</p>
+            <div class="flex justify-center items-center space-x-6 space-x-reverse mb-8">
+                <a href="https://www.instagram.com/loaymqnsah?igsh=MWQ2eTB0NTFxaGEydA==" target="_blank" class="w-12 h-12 flex items-center justify-center rounded-full bg-gray-700 hover:bg-orange-600 text-gray-300 hover:text-white social-icon">
+                    <i class="fab fa-instagram fa-lg"></i>
+                </a>
+                <a href="https://www.facebook.com/share/16wrSm3Gun/" target="_blank" class="w-12 h-12 flex items-center justify-center rounded-full bg-gray-700 hover:bg-orange-600 text-gray-300 hover:text-white social-icon">
+                    <i class="fab fa-facebook-f fa-lg"></i>
+                </a>
+            </div>
+            <div class="border-t border-gray-700 pt-6">
+                 <p class="text-sm text-gray-500">&copy; 2025 دليل فن التعبير. جميع الحقوق محفوظة.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            
+            const punctuationData = [
+                { mark: 'الفاصلة (،)', use: 'تُستخدم للفصل بين الجمل المترابطة.', example: 'عندما وصلتُ إلى المدرسة، وجدتُ أصدقائي في انتظاري.' },
+                { mark: 'النقطة (.)', use: 'تُوضع في نهاية الجملة التامة المعنى.', example: 'انتهى الدرس اليوم.' },
+                { mark: 'الفاصلة المنقوطة (؛)', use: 'تُستخدم بين جملتين الثانية سبب للأولى.', example: 'أنا أدرس بجد؛ لأنني أريد تحقيق النجاح.' },
+                { mark: 'النقطتان الرأسيتان (:)', use: 'تُستخدمان بعد القول أو قبل التفصيل.', example: 'قال الحكيم: العلم نور.' },
+                { mark: 'علامة الاستفهام (؟)', use: 'تُوضع في نهاية السؤال.', example: 'هل فهمت الدرس؟' },
+                { mark: 'علامة التعجب (!)', use: 'تُستخدم للتعبير عن المشاعر القوية.', example: 'ما أجمل هذه اللوحة!' }
+            ];
+
+            const quizData = [
+                { question: "أحب القراءة ___ والرسم ___ والسباحة", options: ["، ،", ". ،", "؛ ،"], answer: "، ،" },
+                { question: "ما أروع هذا المنظر___", options: ["!", ".", "؟"], answer: "!" },
+                { question: "لم يأتِ اليوم ___ لأنه كان مريضًا", options: [":", "؛", "،"], answer: "؛" },
+                { question: "سألني المعلم ___ هل أعددت واجبك", options: ["؟", ".", ":"], answer: ":" }
+            ];
+            let currentQuizQuestion = 0;
+            let quizScore = 0;
+
+            const diagramExplanations = {
+                topic: '<strong>الجملة المفتاحية:</strong> هي الجملة الأولى في الفقرة، ووظيفتها تقديم الفكرة الرئيسية التي ستتم مناقشتها بوضوح ومباشرة.',
+                details: '<strong>التفاصيل والدعم:</strong> هنا تشرح فكرتك الرئيسية وتدعمها بالأدلة والأمثلة والحجج المنطقية. هذا الجزء هو الذي يعطي فقرتك عمقًا ومصداقية.',
+                concluding: '<strong>الجملة الختامية:</strong> هي الجملة الأخيرة التي تلخص فكرة الفقرة، وقد تمهد الطريق بسلاسة للانتقال إلى فكرة الفقرة التالية.'
+            };
+
+            const tabContents = {
+                intro: `
+                    <h4 class="font-bold text-xl mb-3">المقدمة: المدخل الجذاب</h4>
+                    <p class="mb-4">هي بوابتك لجذب القارئ. يجب أن تكون قصيرة ومباشرة وتتضمن:</p>
+                    <ul class="list-disc pr-6 space-y-2 mb-4">
+                        <li><strong>التمهيد (الجملة الجاذبة):</strong> جملة افتتاحية قوية أو سؤال مثير للفضول.</li>
+                        <li><strong>الفكرة المحورية (الأطروحة):</strong> جملة واضحة تلخص هدف مقالتك ورأيك في الموضوع.</li>
+                    </ul>
+                    <div class="mt-4 p-4 bg-gray-100 rounded-lg border text-lg leading-relaxed">
+                        <p class="font-bold mb-2">مثال تفاعلي:</p>
+                        <p>
+                            <span class="interactive-text text-sky-600" data-tooltip="التمهيد: جملة افتتاحية تثير اهتمام القارئ.">في عالمنا المعاصر، حيث تتسارع وتيرة الحياة وتتعدد أدوات التواصل، أصبح الحديث عن تأثير وسائل التواصل الاجتماعي أمرًا لا مفر منه.</span> 
+                            <span class="interactive-text text-orange-600" data-tooltip="الفكرة المحورية: تحدد بوضوح ما ستناقشه المقالة.">لذا، ستبحث هذه المقالة في كيفية تأثير وسائل التواصل الاجتماعي على حياتنا الاجتماعية، مستعرضةً الجوانب الإيجابية والسلبية لهذا التحول.</span>
+                        </p>
+                    </div>
+                `,
+                body: `
+                    <h4 class="font-bold text-xl mb-3">العرض: صلب الموضوع</h4>
+                    <p class="mb-4">هذا هو الجزء الأكبر من مقالتك، حيث تعرض حججك وأفكارك في فقرات متسلسلة. كل فقرة يجب أن:</p>
+                    <ul class="list-disc pr-6 space-y-2 mb-4">
+                        <li>تبدأ بـ<strong>جملة مفتاحية</strong> تحدد فكرتها الرئيسية.</li>
+                        <li>تحتوي على <strong>تفاصيل وأدلة</strong> تدعم هذه الفكرة.</li>
+                        <li>تنتهي بـ<strong>جملة ختامية</strong> تلخص الفكرة وتمهد لما بعدها.</li>
+                    </ul>
+                    <div class="mt-4 p-4 bg-gray-100 rounded-lg border text-lg leading-relaxed">
+                        <p class="font-bold mb-2">مثال تفاعلي:</p>
+                        <p>
+                            <span class="interactive-text text-sky-600" data-tooltip="الجملة المفتاحية: تقدم الفكرة الرئيسية للفقرة.">من ناحية إيجابية، تُعد وسائل التواصل الاجتماعي أداة فعالة لتعزيز التواصل بين الأفراد.</span> 
+                            <span class="interactive-text text-gray-700" data-tooltip="التفاصيل والدعم: أمثلة وأدلة تدعم الجملة المفتاحية.">فهي تتيح لنا البقاء على اتصال دائم مع الأصدقاء والعائلة، حتى وإن كانت تفصلنا عنهم آلاف الأميال، ويمكن للطلاب التعاون في مشاريع جماعية عن بُعد.</span> 
+                            <span class="interactive-text text-orange-600" data-tooltip="الجملة الختامية: تلخص فكرة الفقرة.">وبناءً على ذلك، يمكن القول إنها تسهم في تقوية الروابط الاجتماعية إذا ما استُخدمت بحكمة.</span>
+                        </p>
+                    </div>
+                `,
+                conclusion: `
+                    <h4 class="font-bold text-xl mb-3">الخاتمة: النهاية القوية</h4>
+                    <p class="mb-4">مهمتها تلخيص ما سبق وترك انطباع أخير لدى القارئ. يجب أن:</p>
+                    <ul class="list-disc pr-6 space-y-2 mb-4">
+                        <li><strong>تعيد صياغة الفكرة المحورية</strong> بكلمات مختلفة.</li>
+                        <li><strong>تلخص النقاط الأساسية</strong> التي ناقشتها في العرض.</li>
+                        <li><strong>تقدم جملة أخيرة مؤثرة</strong> تدعو القارئ للتفكير.</li>
+                    </ul>
+                    <div class="mt-4 p-4 bg-gray-100 rounded-lg border text-lg leading-relaxed">
+                        <p class="font-bold mb-2">مثال تفاعلي:</p>
+                        <p>
+                            <span class="interactive-text text-sky-600" data-tooltip="إعادة صياغة الفكرة وتلخيص النقاط.">وخلاصة القول، فإن وسائل التواصل الاجتماعي سلاح ذو حدين، فكما أنها قد تكون جسرًا للتواصل، قد تتحول إلى حاجز يعزل الأفراد.</span> 
+                            <span class="interactive-text text-orange-600" data-tooltip="جملة أخيرة مؤثرة: تترك انطباعاً قوياً لدى القارئ.">إن المفتاح يكمن في طريقة استخدامنا لها، فالإجابة على سؤال 'هل هي نعمة أم نقمة؟' تقع على عاتق كل فرد منا.</span>
+                        </p>
+                    </div>
+                `
+            };
+
+            const tipsData = [
+                { icon: 'fas fa-book-open', title: 'نصيحة 1: اقرأ كثيرًا', content: 'القراءة هي أفضل طريقة لاكتساب مفردات جديدة وأنماط جمل مختلفة. خصص وقتًا يوميًا لقراءة مواضيع متنوعة.' },
+                { icon: 'fas fa-lightbulb', title: 'نصيحة 2: خطّط قبل أن تكتب', content: 'قبل البدء بالكتابة، قم بإنشاء مخطط بسيط يحدد أجزاء المقالة الرئيسية ونقاطها الفرعية. هذا يوفر عليك الوقت ويمنع تشتت الأفكار.' },
+                { icon: 'fas fa-search', title: 'نصيحة 3: راجع ونقّح', content: 'لا تكتفِ بالكتابة مرة واحدة. قم بمراجعة مسودتك أكثر من مرة لتصحيح الأخطاء الإملائية والنحوية وتحسين صياغة الجمل.' },
+                { icon: 'fas fa-pen-fancy', title: 'نصيحة 4: نوّع في الأسلوب', content: 'استخدم جملًا قصيرة وطويلة، واجعل بدايات الجمل متنوعة لتجنب الرتابة. هذا يجعل كتابتك أكثر حيوية وجاذبية.' },
+                { icon: 'fas fa-bullseye', title: 'نصيحة 5: كن واضحًا ومباشرًا', content: 'تجنب التراكيب المعقدة والجمل الطويلة التي قد تشتت انتباه القارئ. اكتب بلغة بسيطة وواضحة تصل إلى ذهن القارئ مباشرة.' }
+            ];
+            let currentTipIndex = 0;
+            
+            const phrasesData = [
+                { title: 'للمقدمة والاستهلال', phrases: ['مما لا شك فيه أن...', 'يعتبر موضوع... من أهم المواضيع.', 'في عصرنا الحالي...'] },
+                { title: 'لإضافة الأفكار', phrases: ['بالإضافة إلى ذلك...', 'علاوة على ما سبق...', 'ومن ناحية أخرى...', 'كذلك...'] },
+                { title: 'للإيضاح والتفسير', phrases: ['على سبيل المثال...', 'وهذا يعني أن...', 'بمعنى آخر...'] },
+                { title: 'للنتيجة والخاتمة', phrases: ['وبناءً على ذلك...', 'في الختام، يمكن القول إن...', 'وخلاصة القول...', 'في النهاية...'] }
+            ];
+            
+            const transitionQuizData = [
+                { question: "أنهى الطالب واجباته ___ ذهب للعب.", options: ["بالإضافة إلى ذلك", "ثم", "على سبيل المثال"], answer: "ثم" },
+                { question: "أحب الفاكهة، ___ التفاح والموز.", options: ["لذلك", "لكن", "على سبيل المثال"], answer: "على سبيل المثال" },
+                { question: "كان الجو بارداً، ___ ارتديت معطفي.", options: ["علاوة على ذلك", "لذلك", "بينما"], answer: "لذلك" }
+            ];
+            let currentTransitionQuestion = 0;
+
+            const synthSuccess = new Tone.Synth().toDestination();
+            const synthFailure = new Tone.Synth({
+                oscillator: { type: 'triangle' },
+                envelope: { attack: 0.05, decay: 0.1, sustain: 0.1, release: 0.2 }
+            }).toDestination();
+            const synthClick = new Tone.Synth({
+                oscillator: { type: 'sine' },
+                envelope: { attack: 0.01, decay: 0.1, sustain: 0, release: 0.1 }
+            }).toDestination();
+
+            let toneStarted = false;
+            async function startAudioContext() {
+                if (!toneStarted) {
+                    await Tone.start();
+                    toneStarted = true;
+                }
+            }
+
+            function playSuccessSound() {
+                startAudioContext().then(() => {
+                    synthSuccess.triggerAttackRelease('C5', '8n');
+                });
+            }
+
+            function playFailureSound() {
+                startAudioContext().then(() => {
+                    synthFailure.triggerAttackRelease('A3', '8n');
+                });
+            }
+
+            function playClickSound() {
+                 startAudioContext().then(() => {
+                    synthClick.triggerAttackRelease('C4', '16n');
+                });
+            }
+            
+            function renderPunctuationCards() {
+                const container = document.getElementById('punctuation-cards');
+                container.innerHTML = punctuationData.map(item => `
+                    <div class="card bg-white p-6 rounded-xl border border-gray-200 cursor-pointer" onclick="this.querySelector('.card-back').classList.toggle('hidden'); playClickSound()">
+                        <div class="card-front text-center">
+                            <p class="text-3xl font-bold mb-2">${item.mark}</p>
+                            <p class="text-orange-600 font-semibold">${item.use}</p>
+                        </div>
+                        <div class="card-back hidden mt-4 pt-4 border-t text-center">
+                            <p class="font-semibold">مثال:</p>
+                            <p class="text-gray-700">${item.example}</p>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            function renderQuiz() {
+                const quiz = quizData[currentQuizQuestion];
+                const container = document.getElementById('quiz-content');
+                container.innerHTML = `
+                    <p class="text-lg font-semibold mb-4">${quiz.question.replace(/___/g, '<span class="font-bold text-red-500">___</span>')}</p>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        ${quiz.options.map(option => `<button class="quiz-option p-3 bg-white rounded-lg border-2 border-gray-200 hover:border-orange-400">${option}</button>`).join('')}
+                    </div>
+                `;
+                addQuizListeners();
+            }
+
+            function addQuizListeners() {
+                const options = document.querySelectorAll('.quiz-option');
+                options.forEach(option => {
+                    option.addEventListener('click', function() {
+                        const selectedAnswer = this.textContent;
+                        const correctAnswer = quizData[currentQuizQuestion].answer;
+                        options.forEach(btn => btn.disabled = true);
+                        if (selectedAnswer.trim() === correctAnswer.trim()) {
+                            this.classList.add('correct');
+                            playSuccessSound();
+                            quizScore++;
+                        } else {
+                            this.classList.add('incorrect');
+                            playFailureSound();
+                            options.forEach(btn => {
+                                if (btn.textContent.trim() === correctAnswer.trim()) {
+                                    btn.classList.add('correct');
+                                }
+                            });
+                        }
+                        
+                        const feedbackContainer = document.getElementById('quiz-feedback');
+                        const nextBtn = document.createElement('button');
+                        nextBtn.textContent = "السؤال التالي";
+                        nextBtn.className = "mt-4 py-2 px-5 bg-orange-600 text-white font-semibold rounded-lg shadow-md hover:bg-orange-700 transition-colors";
+                        feedbackContainer.innerHTML = '';
+                        feedbackContainer.appendChild(nextBtn);
+
+                        nextBtn.addEventListener('click', function() {
+                            playClickSound();
+                            currentQuizQuestion++;
+                            if (currentQuizQuestion < quizData.length) {
+                                renderQuiz();
+                                feedbackContainer.innerHTML = '';
+                            } else {
+                                document.getElementById('quiz-container').innerHTML = `<p class="text-center text-xl font-bold text-green-600">رائع! لقد أكملت الاختبار وحصلت على ${quizScore} من ${quizData.length}.</p><button id="restart-quiz-btn" class="mt-4 py-2 px-5 bg-gray-600 text-white font-semibold rounded-lg shadow-md hover:bg-gray-700 transition-colors">إعادة الاختبار</button>`;
+                                document.getElementById('restart-quiz-btn').addEventListener('click', restartQuiz);
+                            }
+                        });
+                    });
+                });
+            }
+            
+            function restartQuiz() {
+                playClickSound();
+                currentQuizQuestion = 0;
+                quizScore = 0;
+                renderQuiz();
+                document.getElementById('quiz-feedback').innerHTML = '';
+            }
+
+            function handleDiagramClick(partId, playSound = true) {
+                if (playSound) playClickSound();
+                document.querySelectorAll('.diagram-part').forEach(part => part.classList.remove('active'));
+                document.getElementById(`part-${partId}`).classList.add('active');
+                document.getElementById('diagram-explanation').innerHTML = diagramExplanations[partId];
+            }
+            
+            document.getElementById('part-topic').addEventListener('click', () => handleDiagramClick('topic'));
+            document.getElementById('part-details').addEventListener('click', () => handleDiagramClick('details'));
+            document.getElementById('part-concluding').addEventListener('click', () => handleDiagramClick('concluding'));
+
+            function handleTabClick(tabId, playSound = true) {
+                if (playSound) playClickSound();
+                document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+                document.querySelector(`[data-tab="${tabId}"]`).classList.add('active');
+                const contentContainer = document.getElementById('tab-content');
+                contentContainer.innerHTML = tabContents[tabId];
+                
+                contentContainer.querySelectorAll('.interactive-text').forEach(el => {
+                    const tooltipText = el.dataset.tooltip;
+                    const tooltip = document.createElement('span');
+                    tooltip.className = 'tooltip';
+                    tooltip.textContent = tooltipText;
+                    el.appendChild(tooltip);
+                });
+            }
+
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.addEventListener('click', () => handleTabClick(btn.dataset.tab));
+            });
+            
+            function renderPhrases() {
+                const container = document.getElementById('phrases-accordion');
+                container.innerHTML = phrasesData.map(category => `
+                    <details class="bg-gray-50 rounded-lg border border-gray-200 group">
+                        <summary class="p-4 font-bold text-lg cursor-pointer flex justify-between items-center group-open:border-b group-open:border-gray-200" onclick="playClickSound()">
+                            ${category.title}
+                            <span class="transform group-open:rotate-180 transition-transform">▼</span>
+                        </summary>
+                        <div class="p-4">
+                            <ul class="space-y-2">
+                                ${category.phrases.map(phrase => `<li class="flex justify-between items-center p-2 rounded hover:bg-orange-100">${phrase}</li>`).join('')}
+                            </ul>
+                        </div>
+                    </details>
+                `).join('');
+            }
+
+            function renderTips() {
+                const container = document.getElementById('tips-container');
+                container.innerHTML = '';
+                const tip = tipsData[currentTipIndex];
+                const tipElement = document.createElement('div');
+                tipElement.classList.add('carousel-item', 'active', 'p-6', 'rounded-xl');
+                tipElement.innerHTML = `
+                    <div class="text-center">
+                        <i class="${tip.icon} text-3xl text-orange-500 mb-4"></i>
+                        <h4 class="font-bold text-xl mb-2 text-orange-700">${tip.title}</h4>
+                        <p class="text-gray-700">${tip.content}</p>
+                    </div>
+                `;
+                container.appendChild(tipElement);
+            }
+
+            function showNextTip() {
+                playClickSound();
+                currentTipIndex = (currentTipIndex + 1) % tipsData.length;
+                renderTips();
+            }
+
+            function showPrevTip() {
+                playClickSound();
+                currentTipIndex = (currentTipIndex - 1 + tipsData.length) % tipsData.length;
+                renderTips();
+            }
+
+            document.getElementById('tips-next').addEventListener('click', showNextTip);
+            document.getElementById('tips-prev').addEventListener('click', showPrevTip);
+
+            const sections = document.querySelectorAll('section');
+            const navLinks = document.querySelectorAll('.nav-link');
+            window.addEventListener('scroll', () => {
+                let current = '';
+                sections.forEach(section => {
+                    const sectionTop = section.offsetTop;
+                    if (pageYOffset >= sectionTop - 80) {
+                        current = section.getAttribute('id');
+                    }
+                });
+
+                navLinks.forEach(link => {
+                    link.classList.remove('active');
+                    if (link.getAttribute('href') === `#${current}`) {
+                        link.classList.add('active');
+                    }
+                });
+            });
+            
+            // Drag and Drop Exercise
+            const paragraphSentences = [
+                { text: 'فهي تفتح أمام الإنسان نوافذ على عوالم وثقافات مختلفة لم يكن ليعرفها لولاها.', order: 2 },
+                { text: 'لذلك، فإن تخصيص وقت يومي للقراءة هو استثمار حقيقي في الذات.', order: 4 },
+                { text: 'تُعد القراءة من أهم العادات التي تنمي العقل وتوسع المدارك.', order: 1 },
+                { text: 'كما أنها تزيد من حصيلته اللغوية وتطور قدرته على التعبير والكتابة.', order: 3 }
+            ];
+
+            const scrambledContainer = document.getElementById('scrambled-sentences');
+            const dropzones = document.querySelectorAll('.dropzone');
+            let draggedItem = null;
+
+            function initializeParagraphExercise() {
+                scrambledContainer.innerHTML = '';
+                paragraphSentences.sort(() => Math.random() - 0.5).forEach(sentence => {
+                    const div = document.createElement('div');
+                    div.textContent = sentence.text;
+                    div.className = 'draggable p-4 bg-white border rounded-lg shadow-sm';
+                    div.draggable = true;
+                    div.dataset.order = sentence.order;
+                    scrambledContainer.appendChild(div);
+                });
+                
+                dropzones.forEach(zone => {
+                    zone.innerHTML = `<span class="text-gray-400">${zone.dataset.order === '1' ? 'ضع الجملة المفتاحية هنا' : zone.dataset.order === '4' ? 'ضع الجملة الختامية هنا' : 'ضع التفاصيل الداعمة هنا'}</span>`;
+                    zone.classList.remove('correct', 'incorrect');
+                });
+
+                addDragListeners();
+            }
+
+            function addDragListeners() {
+                const draggables = document.querySelectorAll('.draggable');
+                draggables.forEach(draggable => {
+                    draggable.addEventListener('dragstart', () => {
+                        draggedItem = draggable;
+                        setTimeout(() => draggable.style.display = 'none', 0);
+                    });
+                    draggable.addEventListener('dragend', () => {
+                        setTimeout(() => {
+                            draggedItem.style.display = 'block';
+                            draggedItem = null;
+                        }, 0);
+                    });
+                });
+
+                dropzones.forEach(zone => {
+                    zone.addEventListener('dragover', e => {
+                        e.preventDefault();
+                        zone.classList.add('over');
+                    });
+                    zone.addEventListener('dragleave', () => {
+                        zone.classList.remove('over');
+                    });
+                    zone.addEventListener('drop', e => {
+                        e.preventDefault();
+                        zone.classList.remove('over');
+                        if (zone.children.length > 1) {
+                             scrambledContainer.appendChild(zone.querySelector('.draggable'));
+                        }
+                        zone.innerHTML = '';
+                        zone.appendChild(draggedItem);
+                    });
+                });
+            }
+            
+            document.getElementById('check-order-btn').addEventListener('click', () => {
+                let allCorrect = true;
+                dropzones.forEach(zone => {
+                    const child = zone.querySelector('.draggable');
+                    if (child && child.dataset.order === zone.dataset.order) {
+                        zone.classList.add('correct');
+                        zone.classList.remove('incorrect');
+                    } else {
+                        zone.classList.add('incorrect');
+                        zone.classList.remove('correct');
+                        allCorrect = false;
+                    }
+                });
+                if (allCorrect) {
+                    playSuccessSound();
+                } else {
+                    playFailureSound();
+                }
+            });
+
+            document.getElementById('reset-order-btn').addEventListener('click', () => {
+                playClickSound();
+                initializeParagraphExercise();
+            });
+            
+            // Transition Words Quiz
+            function renderTransitionQuiz() {
+                const quiz = transitionQuizData[currentTransitionQuestion];
+                const container = document.getElementById('transition-quiz-content');
+                container.innerHTML = `
+                    <p class="text-lg font-semibold mb-4">${quiz.question.replace('___', '<span class="font-bold text-red-500">___</span>')}</p>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        ${quiz.options.map(option => `<button class="quiz-option p-3 bg-white rounded-lg border-2 border-gray-200 hover:border-orange-400">${option}</button>`).join('')}
+                    </div>
+                `;
+                addTransitionQuizListeners();
+            }
+
+            function addTransitionQuizListeners() {
+                const options = document.querySelectorAll('#transition-quiz-content .quiz-option');
+                options.forEach(option => {
+                    option.addEventListener('click', function() {
+                        const selectedAnswer = this.textContent;
+                        const correctAnswer = transitionQuizData[currentTransitionQuestion].answer;
+                        options.forEach(btn => btn.disabled = true);
+                        if (selectedAnswer.trim() === correctAnswer.trim()) {
+                            this.classList.add('correct');
+                            playSuccessSound();
+                        } else {
+                            this.classList.add('incorrect');
+                            playFailureSound();
+                            options.forEach(btn => {
+                                if (btn.textContent.trim() === correctAnswer.trim()) {
+                                    btn.classList.add('correct');
+                                }
+                            });
+                        }
+
+                        const feedbackContainer = document.getElementById('transition-quiz-feedback');
+                        const nextBtn = document.createElement('button');
+                        nextBtn.textContent = "السؤال التالي";
+                        nextBtn.className = "mt-4 py-2 px-5 bg-orange-600 text-white font-semibold rounded-lg shadow-md hover:bg-orange-700 transition-colors";
+                        feedbackContainer.innerHTML = '';
+                        feedbackContainer.appendChild(nextBtn);
+
+                        nextBtn.addEventListener('click', function() {
+                            playClickSound();
+                            currentTransitionQuestion++;
+                            if (currentTransitionQuestion < transitionQuizData.length) {
+                                renderTransitionQuiz();
+                                feedbackContainer.innerHTML = '';
+                            } else {
+                                document.getElementById('transition-quiz-content').innerHTML = `<p class="text-center text-xl font-bold text-green-600">أحسنت! لقد أتقنت استخدام أدوات الربط.</p>`;
+                                feedbackContainer.innerHTML = `<button id="restart-transition-quiz-btn" class="mt-4 py-2 px-5 bg-gray-600 text-white font-semibold rounded-lg shadow-md hover:bg-gray-700 transition-colors">إعادة التمرين</button>`;
+                                document.getElementById('restart-transition-quiz-btn').addEventListener('click', restartTransitionQuiz);
+                            }
+                        });
+                    });
+                });
+            }
+
+            function restartTransitionQuiz() {
+                playClickSound();
+                currentTransitionQuestion = 0;
+                renderTransitionQuiz();
+                document.getElementById('transition-quiz-feedback').innerHTML = '';
+            }
+
+
+            // Initial Renders
+            renderPunctuationCards();
+            renderQuiz();
+            handleDiagramClick('topic', false);
+            handleTabClick('intro', false);
+            renderPhrases();
+            renderTips();
+            initializeParagraphExercise();
+            renderTransitionQuiz();
+        });
+    </script>
+
+</body>
+</html>
